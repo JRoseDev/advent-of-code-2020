@@ -3,18 +3,26 @@ import { values } from "./input";
 export const findSumsTo = (
     targetValue: number,
     targetCount: number,
-    values: number[]
+    values: number[],
+    usedIndexes: number[] = []
 ): number[] | null => {
-    const seenValues = new Set();
+    const seenValues = new Set<number>();
 
-    for (const v of values) {
+    for (const [i, v] of values.entries()) {
+        if (usedIndexes.includes(i)) {
+            continue;
+        }
+
         const target = targetValue - v;
 
         if (targetCount > 2) {
-            const foundSum = findSumsTo(target, targetCount - 1, values);
+            const foundSum = findSumsTo(target, targetCount - 1, values, [
+                ...usedIndexes,
+                i,
+            ]);
 
             if (foundSum != null) {
-                return [...foundSum, v];
+                return [v, ...foundSum];
             }
         } else if (seenValues.has(target)) {
             return [target, v];

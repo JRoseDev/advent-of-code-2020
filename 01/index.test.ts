@@ -1,7 +1,5 @@
 import { findSumsTo, solvePart1, solvePart2 } from ".";
 
-import { values } from "./input";
-
 describe("01", () => {
     describe("Part 1 - Find the two numbers that add to 2020 and multiply them", () => {
         describe("findSumTo", () => {
@@ -30,9 +28,9 @@ describe("01", () => {
     describe("Part 2 - Find the three numbers that add to 2020 and multiply them", () => {
         describe("findSumTo", () => {
             it("finds first three numbers that sum to 5", () => {
-                const actual = findSumsTo(5, 3, [1, 2, 3, 4, 1, 5]);
+                const actual = findSumsTo(5, 3, [1, 2, 3, 4, 2, 5]);
 
-                expect(actual).toEqual([1, 3, 1]);
+                expect(actual).toEqual([1, 2, 2]);
             });
         });
     });
