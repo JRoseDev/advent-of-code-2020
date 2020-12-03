@@ -1,4 +1,4 @@
-import { getCell, plotRoute, runRoute, solvePart1 } from ".";
+import { getCell, plotRoute, runRoute, solvePart1, solvePart2 } from ".";
 
 const grid = [
     ["a", "b", "c"],
@@ -57,6 +57,16 @@ describe("03", () => {
                 const actual = solvePart1();
 
                 expect(actual).toEqual(167);
+            });
+        });
+    });
+
+    describe("Part 2 - Multiply the count of trees for several routes", () => {
+        describe("solvePart2", () => {
+            it("solves the puzzle!", () => {
+                const actual = solvePart2();
+
+                expect(actual).toEqual(736527114);
             });
         });
     });

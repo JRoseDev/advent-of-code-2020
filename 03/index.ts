@@ -10,7 +10,15 @@ type Coordinate = [x: number, y: number];
 type Route = Coordinate[];
 type NextCoordinate = (c: Coordinate) => Coordinate;
 
-const nextCoordinate: NextCoordinate = ([x, y]) => [x + 3, y + 1];
+const part1Slope: NextCoordinate = ([x, y]) => [x + 3, y + 1];
+
+const part2Slopes: NextCoordinate[] = [
+    ([x, y]) => [x + 1, y + 1],
+    ([x, y]) => [x + 3, y + 1],
+    ([x, y]) => [x + 5, y + 1],
+    ([x, y]) => [x + 7, y + 1],
+    ([x, y]) => [x + 1, y + 2],
+];
 
 const isTree = (s: string) => s === "#";
 
@@ -36,5 +44,13 @@ export const plotRoute = (
 export const runRoute = (grid: Grid, route: Route) => route.map(getCell(grid));
 
 export const solvePart1 = () =>
-    runRoute(input, plotRoute(nextCoordinate, input.length)).filter(isTree)
-        .length;
+    runRoute(input, plotRoute(part1Slope, input.length)).filter(isTree).length;
+
+export const solvePart2 = () =>
+    part2Slopes
+        .map(
+            (s) =>
+                runRoute(input, plotRoute(s, input.length)).filter(isTree)
+                    .length
+        )
+        .reduce((total, treeCount) => total * treeCount);
