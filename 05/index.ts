@@ -50,3 +50,11 @@ export const solvePart1 = () =>
         .map(findSeat(128, 8))
         .map(toSeatId)
         .reduce((max, id) => (id > max ? id : max));
+
+export const solvePart2 = () =>
+    input
+        .map(parseBoardingPass)
+        .map(findSeat(128, 8))
+        .map(toSeatId)
+        .sort((a, b) => a - b)
+        .reduce((prev, curr) => (curr === prev + 1 ? curr : prev)) + 1;

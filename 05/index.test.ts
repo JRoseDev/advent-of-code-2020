@@ -1,4 +1,4 @@
-import { findSeat, parseBoardingPass, solvePart1, toSeatId } from ".";
+import { findSeat, parseBoardingPass, solvePart1, solvePart2, toSeatId } from ".";
 
 describe("05", () => {
     describe("Part 1 - Find the highest seat Id", () => {
@@ -40,6 +40,16 @@ describe("05", () => {
                 const actual = solvePart1();
 
                 expect(actual).toEqual(978);
+            });
+        });
+    });
+
+    describe("Part 2 - Find the missing seat Id", () => {
+        describe("solvePart2", () => {
+            it("solves the puzzle!", () => {
+                const actual = solvePart2();
+
+                expect(actual).toEqual(727);
             });
         });
     });
