@@ -1,33 +1,22 @@
+import { ValidationRules, part1ValidationRules, part2ValidationRules } from "./validationRules";
+
+import { Passport } from "./passport";
 import { readFileSync } from "fs";
 
 const input = readFileSync("./04/input.txt").toString().split("\r\n");
 
-interface Passport {
-    birthYear: string;
-    countryId: string;
-    expirationYear: string;
-    eyeColor: string;
-    hairColor: string;
-    height: string;
-    issueYear: string;
-    passportId: string;
-}
-
 const fieldMap = {
-    byr: "birthYear" as const,
-    cid: "countryId" as const,
-    ecl: "eyeColor" as const,
-    eyr: "expirationYear" as const,
-    hcl: "hairColor" as const,
-    hgt: "height" as const,
-    iyr: "issueYear" as const,
-    pid: "passportId" as const
-};
-
-const requiredFields = Object.values(fieldMap).filter((k) => k !== "countryId");
+    byr: "birthYear",
+    cid: "countryId",
+    ecl: "eyeColor",
+    eyr: "expirationYear",
+    hcl: "hairColor",
+    hgt: "height",
+    iyr: "issueYear",
+    pid: "passportId"
+} as const;
 
 type ShortFieldNames = keyof typeof fieldMap;
-type LongFieldNames = typeof fieldMap[ShortFieldNames];
 
 const passportFromLine = (line: string) => {
     const fields = line
@@ -60,10 +49,13 @@ export const parsePassports = (lines: string[]): Partial<Passport>[] => {
     return [passportFromLine(passportLine.join(" "))];
 };
 
-export const isValid = (passport: Partial<Passport>): boolean => {
-    const presentFields = Object.keys(passport);
+export const isValid = (validationRules: ValidationRules) => (
+    passport: Partial<Passport>
+): boolean =>
+    Object.entries(validationRules).every(([key, rule]) =>
+        rule(passport[key as keyof Passport])
+    );
 
-    return requiredFields.every((f) => presentFields.includes(f));
-};
+export const solvePart1 = () => parsePassports(input).filter(isValid(part1ValidationRules)).length;
 
-export const solvePart1 = () => parsePassports(input).filter(isValid).length;
+export const solvePart2 = () => parsePassports(input).filter(isValid(part2ValidationRules)).length;

@@ -1,4 +1,5 @@
-import { isValid, parsePassports, solvePart1 } from ".";
+import { isValid, parsePassports, solvePart1, solvePart2 } from ".";
+import { part1ValidationRules, part2ValidationRules } from "./validationRules";
 
 describe("04", () => {
     describe("Part 1 - Count the valid passports", () => {
@@ -115,7 +116,7 @@ describe("04", () => {
 
             describe("isValid", () => {
                 it("returns true for a passport with all required fields", () => {
-                    const actual = isValid({
+                    const actual = isValid(part1ValidationRules)({
                         birthYear: "1993",
                         issueYear: "2018",
                         expirationYear: "2023",
@@ -129,7 +130,7 @@ describe("04", () => {
                 });
 
                 it("returns true for a passport with all required fields plus a country Id", () => {
-                    const actual = isValid({
+                    const actual = isValid(part1ValidationRules)({
                         birthYear: "1993",
                         issueYear: "2018",
                         expirationYear: "2023",
@@ -144,7 +145,7 @@ describe("04", () => {
                 });
 
                 it("returns false for a passport with a missing required field", () => {
-                    const actual = isValid({
+                    const actual = isValid(part1ValidationRules)({
                         birthYear: "1993",
                         issueYear: "2018",
                         height: "171cm",
@@ -163,6 +164,141 @@ describe("04", () => {
                 const actual = solvePart1();
 
                 expect(actual).toEqual(192);
+            });
+        });
+    });
+
+    describe("Part 2 - Field validation", () => {
+        describe("isValid", () => {
+            const validPassport = {
+                birthYear: "1993",
+                issueYear: "2018",
+                expirationYear: "2023",
+                height: "171cm",
+                hairColor: "#623a2f",
+                eyeColor: "amb",
+                passportId: "108667812",
+                countryId: "55"
+            };
+
+            it("passes valid passports", () => {
+                const actual = isValid(part2ValidationRules)(validPassport);
+                expect(actual).toBe(true);
+            });
+
+            it("fails invalid birth years", () => {
+                const actual = isValid(part2ValidationRules)({
+                    ...validPassport,
+                    birthYear: "1910"
+                });
+                expect(actual).toBe(false);
+            });
+
+            it("fails birth years in the wrong format", () => {
+                const actual = isValid(part2ValidationRules)({
+                    ...validPassport,
+                    birthYear: "notANumber"
+                });
+                expect(actual).toBe(false);
+            });
+
+            it("fails invalid issue years", () => {
+                const actual = isValid(part2ValidationRules)({
+                    ...validPassport,
+                    issueYear: "2009"
+                });
+                expect(actual).toBe(false);
+            });
+
+            it("fails issue years in the wrong format", () => {
+                const actual = isValid(part2ValidationRules)({
+                    ...validPassport,
+                    issueYear: "notANumber"
+                });
+                expect(actual).toBe(false);
+            });
+
+            it("fails invalid expiration years", () => {
+                const actual = isValid(part2ValidationRules)({
+                    ...validPassport,
+                    expirationYear: "2019"
+                });
+                expect(actual).toBe(false);
+            });
+
+            it("fails expiration years in the wrong format", () => {
+                const actual = isValid(part2ValidationRules)({
+                    ...validPassport,
+                    expirationYear: "notANumber"
+                });
+                expect(actual).toBe(false);
+            });
+
+            it("fails height not in inches or centimeters", () => {
+                const actual = isValid(part2ValidationRules)({
+                    ...validPassport,
+                    height: "173m"
+                });
+                expect(actual).toBe(false);
+            });
+
+            [
+                { unit: "cm", value: 149, expected: false },
+                { unit: "cm", value: 150, expected: true },
+                { unit: "cm", value: 193, expected: true },
+                { unit: "cm", value: 194, expected: false },
+                { unit: "in", value: 58, expected: false },
+                { unit: "in", value: 59, expected: true },
+                { unit: "in", value: 76, expected: true },
+                { unit: "in", value: 77, expected: false }
+            ].forEach(({ unit, value, expected }) => {
+                it(`${expected ? "passes" : "fails"} height of ${value}${unit}`, () => {
+                    const actual = isValid(part2ValidationRules)({
+                        ...validPassport,
+                        height: `${value}${unit}`
+                    });
+                    expect(actual).toBe(expected);
+                });
+            });
+
+            it("fails expiration years in the wrong format", () => {
+                const actual = isValid(part2ValidationRules)({
+                    ...validPassport,
+                    height: "notANumber"
+                });
+                expect(actual).toBe(false);
+            });
+
+            it("fails hair colour in the wrong format", () => {
+                const actual = isValid(part2ValidationRules)({
+                    ...validPassport,
+                    hairColor: "#12345"
+                });
+                expect(actual).toBe(false);
+            });
+
+            it("fails eye color not in the list", () => {
+                const actual = isValid(part2ValidationRules)({
+                    ...validPassport,
+                    eyeColor: "notAColor"
+                });
+                expect(actual).toBe(false);
+            });
+
+            it("fails invalid passport Id", () => {
+                const actual = isValid(part2ValidationRules)({
+                    ...validPassport,
+                    passportId: "12345678"
+                });
+                expect(actual).toBe(false);
+            });
+        });
+
+        describe("solvePart2", () => {
+            it("solves the puzzle!", () => {
+                const actual = solvePart2();
+
+                expect(actual).toEqual(101);
             });
         });
     });
