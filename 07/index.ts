@@ -1,21 +1,20 @@
-import { Graph, alg } from "graphlib";
-
 import { readFileSync } from "fs";
+import iterate from "iterare";
 
 const input = readFileSync("./07/input.txt").toString().split("\r\n");
 
-interface BagContents {
-    [key: string]: number;
-}
+export type BagContents = Map<string, number>;
 
-interface Bag {
+interface ParsedBag {
     name: string;
     contents: BagContents;
 }
 
-const parseBagContents = (contentsString: string) => {
+type BagMap = Map<string, BagContents>;
+
+const parseBagContents = (contentsString: string): BagContents => {
     if (contentsString === "") {
-        return {};
+        return new Map<string, number>();
     }
 
     const contents = contentsString
@@ -26,12 +25,15 @@ const parseBagContents = (contentsString: string) => {
 
             return { bagName, count };
         })
-        .reduce((acc, curr) => ({ ...acc, [curr.bagName]: Number.parseInt(curr.count) }), {});
+        .reduce(
+            (acc, curr) => acc.set(curr.bagName, Number.parseInt(curr.count)),
+            new Map<string, number>()
+        );
 
     return contents;
 };
 
-export const parseBag = (line: string): Bag => {
+export const parseBag = (line: string): ParsedBag => {
     const { name, contents: contentsString } =
         line.match(/(?<name>[\w\s]+?) bags contain (?<contents>(\d+ [\w\s]+?[,.] ?)*)/iu)?.groups ||
         {};
@@ -40,25 +42,50 @@ export const parseBag = (line: string): Bag => {
     return { name, contents };
 };
 
-export const linkBags = (bags: Bag[]) => {
-    const graph = new Graph();
+export const asMap = (bags: ParsedBag[]) => {
+    const bagMap = new Map<string, BagContents>();
 
-    graph.setNodes(bags.map((b) => b.name));
+    bags.forEach((b) => bagMap.set(b.name, b.contents));
 
-    for (const b of bags) {
-        for (const [containedName, containedCount] of Object.entries(b.contents)) {
-            graph.setEdge(containedName, b.name, containedCount);
-        }
+    return bagMap;
+};
+
+const hasParent = (bagMap: BagMap, bag: string, parent: string): boolean => {
+    const bagContents = bagMap.get(bag);
+
+    if (bagContents?.has(parent)) {
+        return true;
     }
 
-    return graph;
+    if (bagContents?.size === 0) {
+        return false;
+    }
+
+    return iterate(bagContents?.keys() || []).some((b) => hasParent(bagMap, b, parent));
+};
+
+const countChildBags = (bagMap: BagMap, bag: string): number => {
+    const childBags = iterate(bagMap.get(bag)?.entries() || []);
+    const childBagCount = childBags.reduce(
+        (sum, [childBag, count]) => sum + count + countChildBags(bagMap, childBag) * count,
+        0
+    );
+
+    return childBagCount;
 };
 
 export const solvePart1 = () => {
-    const paths = alg.dijkstra(linkBags(input.map(parseBag)), "shiny gold");
-    const reachableBags = Object.keys(paths).filter(
-        (k) => paths[k].distance !== Number.POSITIVE_INFINITY && paths[k].distance !== 0
+    const bagMap = asMap(input.map(parseBag));
+
+    const withShinyGoldParent = iterate(bagMap.keys()).filter((b) =>
+        hasParent(bagMap, b, "shiny gold")
     );
 
-    return reachableBags.length;
+    return withShinyGoldParent.toArray().length;
+};
+
+export const solvePart2 = () => {
+    const bagMap = asMap(input.map(parseBag));
+
+    return countChildBags(bagMap, "shiny gold");
 };

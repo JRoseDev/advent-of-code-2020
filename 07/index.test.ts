@@ -1,6 +1,4 @@
-import { linkBags, parseBag, solvePart1 } from ".";
-
-import { json } from "graphlib";
+import { asMap, parseBag, solvePart1, solvePart2, BagContents } from ".";
 
 describe("07", () => {
     describe("Part 1 - How many bags ultimately contain a shiny gold bag?", () => {
@@ -12,39 +10,44 @@ describe("07", () => {
 
                 expect(actual).toEqual({
                     name: "clear crimson",
-                    contents: {
-                        "pale aqua": 3,
-                        "plaid magenta": 4,
-                        "dotted beige": 3,
-                        "dotted black": 1,
-                    },
+                    contents: new Map<string, number>(
+                        Object.entries({
+                            "pale aqua": 3,
+                            "plaid magenta": 4,
+                            "dotted beige": 3,
+                            "dotted black": 1,
+                        })
+                    ),
                 });
             });
 
             it("parses bags with no contents", () => {
                 const actual = parseBag("shiny plum bags contain no other bags.");
 
-                expect(actual).toEqual({ name: "shiny plum", contents: {} });
+                expect(actual).toEqual({ name: "shiny plum", contents: new Map() });
             });
         });
 
-        describe("linkBags", () => {
-            it("links bags into a graph", () => {
-                const actual = linkBags([
-                    { name: "A", contents: { B: 6, C: 1 } },
-                    { name: "B", contents: { C: 4 } },
-                    { name: "C", contents: {} },
+        describe("asMap", () => {
+            it("stores bags in a map", () => {
+                const actual = asMap([
+                    {
+                        name: "A",
+                        contents: new Map<string, number>(Object.entries({ B: 6, C: 1 })),
+                    },
+                    { name: "B", contents: new Map<string, number>(Object.entries({ C: 4 })) },
+                    { name: "C", contents: new Map() },
                 ]);
 
-                expect(json.write(actual)).toEqual({
-                    edges: [
-                        { v: "B", value: 6, w: "A" },
-                        { v: "C", value: 1, w: "A" },
-                        { v: "C", value: 4, w: "B" },
-                    ],
-                    nodes: [{ v: "A" }, { v: "B" }, { v: "C" }],
-                    options: { compound: false, directed: true, multigraph: false },
-                });
+                expect(actual).toEqual(
+                    new Map<string, BagContents>(
+                        Object.entries({
+                            A: new Map<string, number>(Object.entries({ B: 6, C: 1 })),
+                            B: new Map<string, number>(Object.entries({ C: 4 })),
+                            C: new Map<string, number>(),
+                        })
+                    )
+                );
             });
         });
 
@@ -53,6 +56,16 @@ describe("07", () => {
                 const actual = solvePart1();
 
                 expect(actual).toEqual(128);
+            });
+        });
+    });
+
+    describe("Part 2 - Count the number of bags contained by the shiny gold bag", () => {
+        describe("solvePart2", () => {
+            it("solves the puzzle!", () => {
+                const actual = solvePart2();
+
+                expect(actual).toEqual(20189);
             });
         });
     });
