@@ -14,6 +14,7 @@ interface Jmp {
 
 interface Nop {
     type: "nop";
+    value: number;
 }
 
 type Instruction = Acc | Jmp | Nop;
@@ -31,10 +32,8 @@ export const parseInstruction = (instruction: string): Instruction => {
     switch (type) {
         case "acc":
         case "jmp":
-            return { type, value };
-
         case "nop":
-            return { type };
+            return { type, value };
 
         default:
             throw new Error("Invalid type");
@@ -81,7 +80,10 @@ const execUntilLoop = (
 ): State => {
     const newState = execNextInstruction(instructions, state);
 
-    if (seenInstructions.has(newState.nextInstruction)) {
+    if (
+        seenInstructions.has(newState.nextInstruction) ||
+        newState.nextInstruction >= instructions.length
+    ) {
         return newState;
     }
 
@@ -96,4 +98,32 @@ export const solvePart1 = () => {
     };
 
     return execUntilLoop(instructions, initalState);
+};
+
+export const solvePart2 = () => {
+    const instructions = input.map(parseInstruction);
+    const initalState = {
+        accumulator: 0,
+        nextInstruction: 0,
+    };
+
+    for (const [index, { type, value }] of instructions.entries()) {
+        if (type === "acc") {
+            continue;
+        }
+
+        const newInstruction: Instruction =
+            type === "jmp" ? { type: "nop", value } : { type: "jmp", value };
+
+        const modifiedInstructions = [...instructions];
+        modifiedInstructions.splice(index, 1, newInstruction);
+
+        const finalState = execUntilLoop(modifiedInstructions, initalState);
+
+        if (finalState.nextInstruction === instructions.length) {
+            return finalState;
+        }
+    }
+
+    throw new Error("Couldn't find a terminating program");
 };

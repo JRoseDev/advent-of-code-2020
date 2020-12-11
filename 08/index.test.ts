@@ -1,4 +1,4 @@
-import { execAcc, execJmp, execNop, parseInstruction, solvePart1 } from ".";
+import { execAcc, execJmp, execNop, parseInstruction, solvePart1, solvePart2 } from ".";
 
 describe("08", () => {
     describe("Part 1 - Get the value of the accumulator before an instruction is repeated", () => {
@@ -24,7 +24,7 @@ describe("08", () => {
             it("parses nop", () => {
                 const actual = parseInstruction("nop -52");
 
-                expect(actual).toEqual({ type: "nop" });
+                expect(actual).toEqual({ type: "nop", value: -52 });
             });
         });
 
@@ -76,4 +76,13 @@ describe("08", () => {
         });
     });
 
+    describe("Part 2 - Get the value of the accumulator after the program terminates", () => {
+        describe("solvePart2", () => {
+            it("solves the puzzle!", () => {
+                const actual = solvePart2();
+
+                expect(actual).toEqual({ accumulator: 969, nextInstruction: 612 });
+            });
+        });
+    });
 });
