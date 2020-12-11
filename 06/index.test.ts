@@ -45,7 +45,7 @@ describe("06", () => {
             it("solves the puzzle!", () => {
                 const actual = solvePart2();
 
-                expect(actual).toEqual(727);
+                expect(actual).toEqual(3447);
             });
         });
     });
